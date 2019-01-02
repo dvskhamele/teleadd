@@ -1,0 +1,170 @@
+{% load telapp_extras %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="/static/bootstrap.min.css">
+    <style media="screen">
+      table tr th:first-child{
+        width:20px;
+      }
+      table tr th:last-child{
+        width:110px;
+      }
+      .adduser{
+        width:120px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand" href="#">Instagram Groups</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor02" aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarColor02">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Features</a>
+          </li>
+        </ul>
+
+      </div>
+    </nav>
+    <div class="container-fluid" style="margin-top:20px">
+      <div class="card border-secondary">
+        <div class="card-body">
+          <h4 class="card-title">Group Users</h4>
+          <hr/>
+          <div class="card border-secondary">
+            <div class="card-body">
+              <form action="" method="post">
+                {% csrf_token %}
+              <div class="row">
+                <div class="col-lg-4 col-md-4">
+                  <div class="form-group">
+                    <label for="">Your Group</label>
+                    <input type="text" class="form-control" placeholder="Enter your group name" id="group1" name="group1" value="{{group1}}">
+                  </div>
+                </div>
+                <div class="col-lg-4 col-md-4">
+                  <div class="form-group">
+                    <label for="">Other Group</label>
+                    <input type="text" class="form-control" placeholder="Enter group name you want to add" id="group2" name="group2" value="{{group2}}">
+                  </div>
+                </div>
+                <div class="col-lg-4 col-md-4">
+                  <input type="submit" name="Search" id="search" style="margin-top:32px;" class="btn btn-primary" value="Search Members"/>
+                </div>
+              </div>
+              </form>
+            </div>
+          </div>
+          <br>
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="card border-secondary">
+                <div class="card-header">
+                  <strong id="grp1">Group: {{group1}}</strong>
+                </div>
+                <div class="card-body table" style="height:400px;overflow-x:auto">
+                  <table class="">
+                    <tr>
+                      <th></th>
+                      <th>SNo</th>
+                      <th>Name</th>
+                      <th>Last Active</th>
+                      <th></th>
+                    </tr>
+                    {% for u in group1_client %}
+                      <tr class="users">
+                        <td>
+                          <input type="checkbox" name="uid id="uid" value="{{u.id}}"/>
+                        </td>
+                        <td>{{forloop.counter }}.</td>
+                        <td style="width:50px !important;">{{u.first_name}}</td>
+                        <td>
+                          {{u.status|current_time}}
+                        </td>
+                        <td>
+                          <button user="{{u.id}}" class="btn btn-secondary adduser">Add</button>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </table>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="card border-secondary">
+                <div class="card-header">
+                  <strong id="grp2">Group: {{group2}}</strong>
+                </div>
+                <div class="card-body table" style="height:400px;overflow-x:auto">
+                  <table class="addedUser">
+                    <tr>
+                      <th></th>
+                      <th>SNo</th>
+                      <th>Name</th>
+                      <th>Last Active</th>
+                      <th></th>
+                    </tr>
+                    {% for u in group2_client %}
+                      <tr class="users">
+                        <td>
+                          <input type="checkbox" name="ouid id="ouid" value="{{u.id}}"/>
+                        </td>
+                        <td>{{forloop.counter }}.</td>
+                        <td style="">{{u.first_name}}</td>
+                        <td>
+                          {{u.status|current_time}}
+                        </td>
+                        <td>
+                          <button user="{{u.id}}" class="btn btn-secondary adduser">Add</button>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script>
+      $(document).ready(function(){
+        var c = 0;
+        var addedUser = [];
+        $('.adduser').click(function(){
+          var flg = 1;
+          var user = $(this).attr('user');
+          for(i=0;i<addedUser.length;i++){
+            if(addedUser[i]==user){
+              flg=0;
+              break;
+            }
+          }
+          if(flg==1){
+            addedUser.push(user);
+            $('.addedUser').append('<tr><td>'+(++c)+'.</td><td>'+user+'</td><td><button user="'+user+'" class="btn btn-danger removeuser">Remove</button></td></tr>');
+          }else{
+            alert('already added');
+          }
+        });
+
+        $(document).on('click', '.removeuser', function(){
+          var user = $(this).attr('user');
+          $(this).parent().parent().remove();
+          addedUser.pop('user');
+        });
+      });
+    </script>
+  </body>
+</html>
