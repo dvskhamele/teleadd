@@ -66,7 +66,7 @@ $(document).ready(function(){
       $("#grp2table tr:lt("+(p-20)+")").hide();
     }
   });
-
+/*
   $('.adduser').click(function(){
     var flg = 1;
     var user = $(this).attr('user');
@@ -89,4 +89,20 @@ $(document).ready(function(){
     $(this).parent().parent().remove();
     addedUser.pop('user');
   });
+*/
+  $(document).on('click', '.adduser', function(){
+    var user = $(this).attr('user');
+    $.get('http://localhost:8000/api/apponeuser/'+user, function(data){
+      if(data=='Success'){
+        var username = $(this).attr('username');
+        var status = $(this).attr('status');
+        $('.addedUser').append('<tr><td>'+(++grp2_len)+'</td><td>'+username+'</td><td>'+status+'</td></tr>');
+      }else{
+        alert('Privacy Issue or Already Added');
+      }
+    });
+
+  });
+
+
 });

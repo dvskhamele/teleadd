@@ -14,6 +14,10 @@ from telethon.tl.types import PeerUser, PeerChat, PeerChannel
 from telethon.tl.functions.channels import InviteToChannelRequest
 import time
 
+from .models import *
+from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
+
 # These example values won't work. You must get your own api_id and
 # api_hash from https://my.telegram.org, under API Development.
 
@@ -85,3 +89,40 @@ def index(request):
             context['group1_client'] = client.get_participants(context['group1'])
             context['group2_client'] = client.get_participants(context['group2'])
     return render(request, 'index.html', context)
+
+@csrf_exempt
+def addtogrp(request, u_id=None):
+    try:
+        client(InviteToChannelRequest(group1,[u_id]))
+        return HttpResponse('Success')
+    except:
+        return HttpResponse('Failed')
+
+def apigen(request):
+    if request.method == "POST":
+        apikey = request.POST.get('apikey')
+        apihash = request.POST.get('apihash')
+        mob = request.POST.get('mob')
+        if len(mob)==10:
+            mob = "+91"+mob
+            client.send_code_request(mob)
+            ca = ClientApiKey.objects.create(apikey=apikey, apihash=apihash, mobile_no=mob)
+            ca.save()
+            return render(request, "otp.html", {'mob':mob})
+        else:
+            return render(request, "requestform.html", {'moberror':'invalid mobile number'})
+    else:
+        return render(request, "requestform.html")
+
+def putOtp(request):
+    context = {}
+    if request.method == "POST":
+        mob = request.POST.get('mob')
+        otp = request.POST.get('otp')
+        me = client.sign_in(mob, otp)
+        context['mobile'] = ClientApiKey.objects.all()
+        return render(request, "index.html", context)
+        context['mob'] = mob
+        #context['otperror'] = "invalid OTP"
+    else:
+        return render(request, "otp.html", context)

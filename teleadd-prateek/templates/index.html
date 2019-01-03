@@ -3,7 +3,7 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title></title>
+    <title>Telegram Groups</title>
     <link rel="stylesheet" href="/static/bootstrap.min.css">
     <style media="screen">
       table tr th:first-child{
@@ -27,39 +27,50 @@
       <div class="collapse navbar-collapse" id="navbarColor02">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
-            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="{% url 'index' %}">Home <span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Features</a>
+            <a class="nav-link" target="_blank" href="{% url 'apigen' %}">Generate Api Key</a>
           </li>
         </ul>
 
       </div>
     </nav>
     <div class="container-fluid" style="margin-top:20px">
-      <div class="card border-secondary">
+      <div class="card bg-light">
         <div class="card-body">
           <h4 class="card-title">Group Users</h4>
           <hr/>
-          <div class="card border-secondary">
+          <div class="card bg-light">
             <div class="card-body">
               <form action="" method="post">
                 {% csrf_token %}
               <div class="row">
-                <div class="col-lg-4 col-md-4">
+                <div class="col-lg-3 col-md-3">
                   <div class="form-group">
                     <label for="">Your Group</label>
-                    <input type="text" class="form-control" placeholder="Enter your group name" id="group1" name="group1" value="{{group1}}">
+                    <input type="text" class="form-control" required placeholder="Enter your group name" id="group1" name="group1" value="{{group1}}">
                   </div>
                 </div>
-                <div class="col-lg-4 col-md-4">
+                <div class="col-lg-3 col-md-3">
                   <div class="form-group">
                     <label for="">Other Group</label>
-                    <input type="text" class="form-control" placeholder="Enter group name you want to add" id="group2" name="group2" value="{{group2}}">
+                    <input type="text" class="form-control" required placeholder="Enter group name you want to add" id="group2" name="group2" value="{{group2}}">
                   </div>
                 </div>
-                <div class="col-lg-4 col-md-4">
-                  <input type="submit" name="Search" id="search" style="margin-top:32px;" class="btn btn-primary" value="Select Groups"/>
+                <div class="col-lg-3 col-md-3">
+                  <div class="form-group">
+                    <label for="">Mobile Number</label>
+                    <select class="form-control" required name="mobile_no">
+                      <option value="">Select</option>
+                      {% for m in mobile %}
+                        <option value="{{m}}">{{m}}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+                <div class="col-lg-3 col-md-3">
+                  <input type="submit" name="Search" id="search" style="margin-top:32px;" class="btn btn-primary" value="Search Members"/>
                 </div>
               </div>
               </form>
@@ -69,36 +80,29 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="card border-secondary">
-                <div class="card-header">
+                <div class="card-header bg-light">
                   <strong id="grp1">Group: {{group1}}</strong>
                 </div>
-                <div class="card-body table" style="height:400px;overflow-x:auto">
-                  <table id="grp1table">
+                <div class="card-body" style="height:400px;overflow-x:auto">
+                  <table id="grp1table" class="table">
                     <tr>
-                      <th></th>
                       <th>SNo</th>
                       <th>Name</th>
                       <th>Last Active</th>
-                      <th></th>
                     </tr>
                     {% for u in group1_client %}
                       <tr id="{{forloop.counter }}" class="users1">
-                        <td>
-                          <input type="checkbox" disabled="true" name="uid" id="uid" value="{{u.id}}"/>
-                        </td>
                         <td>{{forloop.counter }}.</td>
                         <td style="width:50px !important;">{{u.first_name}}</td>
                         <td>
                           {{u.status|current_status}}
-                        </td>
-                        <td>
-                          <button user="{{u.id}}" disabled="True" class="btn btn-secondary adduser">Add</button>
                         </td>
                       </tr>
                     {% endfor %}
                   </table>
                 </div>
                 <div class="card-footer pagination_1">
+
                   <span style="font-size:16px" class="badge badge-dark" style="padding:3px">
                     <a style="font-size:16px" href="#grp1table" class="badge badge-light tleft bg-primary">Prev</a>
                     <span class="badge badge-light bg-light">
@@ -106,23 +110,19 @@
                     </span>
                     <a style="font-size:16px" href="#grp1table" class="badge badge-light tright bg-primary" >Next</a>
                   </span>
-                  <span style="font-size:16px" id="grp1total" class="badge badge-dark" style="padding:3px"></span>
+                  <span style="font-size:14px" id="grp1total" class="badge badge-dark" style="padding:3px"></span>
+
                 </div>
               </div>
-              <form method="POST" action="">
-                {% csrf_token %}
-                    <input type="text" class="form-control" placeholder="Enter your group name" style="display: none;" id="group2" name="group2" value="{{group2}}">
-                    <input type="text" class="form-control" placeholder="Enter your group name" style="display: none;" id="group1" name="group1" value="{{group1}}">
-                                  <button type="submit" style="font-size:16px" id="grp1total" class="badge badge-dark" style="padding:3px" value="aSS" name="all">Add all</button>
-                  </form>
+
             </div>
             <div class="col-lg-6">
               <div class="card border-secondary">
-                <div class="card-header">
+                <div class="card-header bg-light">
                   <strong id="grp2">Group: {{group2}}</strong>
                 </div>
-                <div class="card-body table" style="height:400px;overflow-x:auto">
-                  <table id="grp2table" class="addedUser">
+                <div class="card-body" style="height:400px;overflow-x:auto">
+                  <table id="grp2table" class="table addedUser">
                     <tr>
                       <th></th>
                       <th>SNo</th>
@@ -141,13 +141,14 @@
                           {{u.status|current_status}}
                         </td>
                         <td>
-                          <button user="{{u.id}}" disabled="True" class="btn btn-secondary adduser">Add</button>
+                          <button user="{{u.id}}" username="{{u.first_name}}" status="{{u.status|current_status}}" class="btn btn-info adduser">Add</button>
                         </td>
                       </tr>
                     {% endfor %}
                   </table>
                 </div>
                 <div class="card-footer pagination_2">
+                  <form method="POST" action="">
                   <span style="font-size:16px" class="badge badge-dark" style="padding:3px">
                     <a style="font-size:16px" href="#grp2table" class="badge badge-light tleft2 bg-primary">Prev</a>
                     <span class="badge badge-light bg-light">
@@ -155,7 +156,13 @@
                     </span>
                     <a style="font-size:16px" href="#grp2table" class="badge badge-light tright2 bg-primary">Next</a>
                   </span>
-                  <span style="font-size:16px" id="grp2total" class="badge badge-dark" style="padding:3px"></span>
+                  <span style="font-size:14px" id="grp2total" class="badge badge-dark" style="padding:3px"></span>
+
+                    {% csrf_token %}
+                    <input type="hidden" id="group2" name="group2" value="{{group2}}">
+                    <input type="hidden" id="group1" name="group1" value="{{group1}}">
+                    <button type="submit" style="margin-left:160px" class="btn btn-dark" style="padding:3px" name="all">Add all</button>
+                  </form>
                 </div>
               </div>
               </div>
