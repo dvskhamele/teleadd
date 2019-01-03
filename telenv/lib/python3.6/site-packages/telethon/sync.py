@@ -1,0 +1,2 @@
+def syncify(*types):
+    pass

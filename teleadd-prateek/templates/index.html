@@ -59,7 +59,7 @@
                   </div>
                 </div>
                 <div class="col-lg-4 col-md-4">
-                  <input type="submit" name="Search" id="search" style="margin-top:32px;" class="btn btn-primary" value="Search Members"/>
+                  <input type="submit" name="Search" id="search" style="margin-top:32px;" class="btn btn-primary" value="Select Groups"/>
                 </div>
               </div>
               </form>
@@ -84,7 +84,7 @@
                     {% for u in group1_client %}
                       <tr id="{{forloop.counter }}" class="users1">
                         <td>
-                          <input type="checkbox" name="uid" id="uid" value="{{u.id}}"/>
+                          <input type="checkbox" disabled="true" name="uid" id="uid" value="{{u.id}}"/>
                         </td>
                         <td>{{forloop.counter }}.</td>
                         <td style="width:50px !important;">{{u.first_name}}</td>
@@ -92,7 +92,7 @@
                           {{u.status|current_status}}
                         </td>
                         <td>
-                          <button user="{{u.id}}" class="btn btn-secondary adduser">Add</button>
+                          <button user="{{u.id}}" disabled="True" class="btn btn-secondary adduser">Add</button>
                         </td>
                       </tr>
                     {% endfor %}
@@ -133,7 +133,7 @@
                     {% for u in group2_client %}
                       <tr id="{{forloop.counter }}" class="users2">
                         <td>
-                          <input type="checkbox" name="ouid id="ouid" value="{{u.id}}"/>
+                          <input type="checkbox" disabled="true" name="ouid id="ouid" value="{{u.id}}"/>
                         </td>
                         <td>{{forloop.counter }}.</td>
                         <td style="">{{u.first_name}}</td>
@@ -141,7 +141,7 @@
                           {{u.status|current_status}}
                         </td>
                         <td>
-                          <button user="{{u.id}}" class="btn btn-secondary adduser">Add</button>
+                          <button user="{{u.id}}" disabled="True" class="btn btn-secondary adduser">Add</button>
                         </td>
                       </tr>
                     {% endfor %}

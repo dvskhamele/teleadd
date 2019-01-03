@@ -22,10 +22,10 @@ api_id = 627710
 api_hash = '0a6cb002fc0c62fe84afe84932c3d1db'
 
 #Divyesh
-api_id = 308919
+"""api_id = 308919
 api_hash = 'fff3e8b75bf9a6f147dda738eb2c640f'
-
-client = TelegramClient('session_name', api_id, api_hash)
+"""
+client = TelegramClient('session_name'+str(api_id), api_id, api_hash)
 
 client.connect()
 
@@ -51,13 +51,13 @@ def index(request):
     else:
         me=client.get_me(input_peer=True).user_id
 
-    context['group1_client'] = client.get_participants(context['group1'])
-    context['group2_client'] = client.get_participants(context['group2'])
     if request.method == "POST":
-        group1 = request.POST.get('group1')
-        group2 = request.POST.get('group2')
+        context['group1'] = group1 = request.POST.get('group1')
+        context['group2'] = group2 = request.POST.get('group2')
+        context['group1_client'] = client.get_participants(context['group1'])
+        context['group2_client'] = client.get_participants(context['group2'])
 
-        if request.POST["all"]:
+        if "all" in request.POST:
             context = {}
             channels = {d.entity.username: d.entity
                         for d in client.get_dialogs()
@@ -66,7 +66,7 @@ def index(request):
             #channel='entrepreneurialjourney'
             #channel2= 'joinexample3'
             print("ALL PRESSED")
-            participants = client.get_participants(group1)
+            participants = client.get_participants(group2)
             count=1
             if str(1) == "1":
                 for u in participants:
@@ -76,13 +76,12 @@ def index(request):
                     last_seen = client.get_entity(u_id)
                     print(str(last_seen))
                     print()
-                    try:
-                        client(InviteToChannelRequest(group2,[u_id]))
-                    except:
-                        print("Privacy Issue")
-                    if count==50:
+                    client(InviteToChannelRequest(group1,[u_id]))
+                    if count==20:
                         context["group1"] = "It reached to 50 members addition"
                         return render(request, 'index.html', context)
                     count=count+1
-
+    else:
+            context['group1_client'] = client.get_participants(context['group1'])
+            context['group2_client'] = client.get_participants(context['group2'])
     return render(request, 'index.html', context)
