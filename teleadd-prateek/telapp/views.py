@@ -13,53 +13,49 @@ from telethon.tl.types import ChannelAdminRights
 from telethon.tl.types import PeerUser, PeerChat, PeerChannel
 from telethon.tl.functions.channels import InviteToChannelRequest
 import time
-
+from django.urls import reverse
 from .models import *
-from django.http import HttpResponse
+from django.http import *
 from django.views.decorators.csrf import csrf_exempt
 
 # These example values won't work. You must get your own api_id and
 # api_hash from https://my.telegram.org, under API Development.
 
 #AMit
-api_id = 627710
-api_hash = '0a6cb002fc0c62fe84afe84932c3d1db'
 
 #Divyesh
 """api_id = 308919
 api_hash = 'fff3e8b75bf9a6f147dda738eb2c640f'
 """
-client = TelegramClient('session_name'+str(api_id), api_id, api_hash)
 
-client.connect()
 
 
 
 def index(request):
     context = {}
+    
     context['group1'] = 'Airdropbountycommunity'
     context['group2'] = 'latestairdro'
-    if not client.is_user_authorized():
-        if request.method=="POST":
-            thephone = request.POST.get('group1')
-            client.send_code_request(thephone)
-            if request.POST.get('group2'):
-                thecode = request.POST.get('group2')
-                me = client.sign_in(thephone, thecode)
-                print("GOTIT")
-            else:
-                group1 = request.POST.get('group1')
-                return render(request, 'index.html', context)
-        else:
-            return render(request, 'index.html', context)
-    else:
-        me=client.get_me(input_peer=True).user_id
 
-    if request.method == "POST":
+    context['mobile'] = ClientApiKey.objects.all()
+    if request.method=="POST":
+        context['mobile_no'] = thephone = request.POST.get('mobile_no')
+        print(thephone)
+        thephone = ClientApiKey.objects.get( mobile_no = thephone )
+
+        api_id = thephone.apikey
+        api_hash = thephone.apihash
+        client = TelegramClient('session_name'+str(api_id), api_id, api_hash)
+        client.connect()
+
         context['group1'] = group1 = request.POST.get('group1')
         context['group2'] = group2 = request.POST.get('group2')
-        context['group1_client'] = client.get_participants(context['group1'])
-        context['group2_client'] = client.get_participants(context['group2'])
+        time.sleep(1)
+        group1_id=client.get_entity(group1).id
+        group2_id=client.get_entity(group2).id
+
+        context['group1_client'] = client.get_participants(group1_id)
+        context['group2_client'] = client.get_participants(group2_id)
 
         if "all" in request.POST:
             context = {}
@@ -69,7 +65,6 @@ def index(request):
 
             #channel='entrepreneurialjourney'
             #channel2= 'joinexample3'
-            print("ALL PRESSED")
             participants = client.get_participants(group2)
             count=1
             if str(1) == "1":
@@ -81,13 +76,11 @@ def index(request):
                     print(str(last_seen))
                     print()
                     client(InviteToChannelRequest(group1,[u_id]))
-                    if count==20:
+                    if count==2:
                         context["group1"] = "It reached to 50 members addition"
                         return render(request, 'index.html', context)
                     count=count+1
-    else:
-            context['group1_client'] = client.get_participants(context['group1'])
-            context['group2_client'] = client.get_participants(context['group2'])
+        print(context['group2_client'])
     return render(request, 'index.html', context)
 
 @csrf_exempt
@@ -103,10 +96,18 @@ def apigen(request):
         apikey = request.POST.get('apikey')
         apihash = request.POST.get('apihash')
         mob = request.POST.get('mob')
+
         if len(mob)==10:
             mob = "+91"+mob
-            client.send_code_request(mob)
-            ca = ClientApiKey.objects.create(apikey=apikey, apihash=apihash, mobile_no=mob)
+            client = TelegramClient('session_name'+str(apikey), apikey, apihash)
+            client.connect()
+            if not client.is_user_authorized():
+                phone_code_hash = client.send_code_request(mob).phone_code_hash
+                request.session['phone_code_hash'] = phone_code_hash
+            try:
+                ca = ClientApiKey.objects.get(apikey=apikey, apihash=apihash, mobile_no=mob)
+            except:
+                ca = ClientApiKey.objects.create(apikey=apikey, apihash=apihash, mobile_no=mob)
             ca.save()
             return render(request, "otp.html", {'mob':mob})
         else:
@@ -119,10 +120,17 @@ def putOtp(request):
     if request.method == "POST":
         mob = request.POST.get('mob')
         otp = request.POST.get('otp')
-        me = client.sign_in(mob, otp)
+        thephone = ClientApiKey.objects.get( mobile_no = mob )
+        api_id = thephone.apikey
+        api_hash = thephone.apihash
+        phone_code_hash = request.session['phone_code_hash']
+        client = TelegramClient('session_name'+str(api_id), api_id, api_hash)
+        client.connect()
+        me = client.sign_in(mob, otp, phone_code_hash=phone_code_hash)
         context['mobile'] = ClientApiKey.objects.all()
-        return render(request, "index.html", context)
         context['mob'] = mob
+
+        return HttpResponseRedirect(reverse('index'))
         #context['otperror'] = "invalid OTP"
     else:
         return render(request, "otp.html", context)
