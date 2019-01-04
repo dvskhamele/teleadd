@@ -28,6 +28,22 @@ import json
 """api_id = 308919
 api_hash = 'fff3e8b75bf9a6f147dda738eb2c640f'
 """
+"""
+try:
+	if ClientApiKey.objects.all().count() == 0:
+    		dks = [{'id': 5, 'apikey': '627710', 'apihash': '0a6cb002fc0c62fe84afe84932c3d1db', 
+    'mobile_no': '+919893918907'}, {'id': 7, 'apikey': '688377', 'apihash': 'bb9b6c7edbdc58e2a9ce082f3577559d', 'mobile_no': '+919074415913'}, {'id': 8, 'apikey': '308919', 'apihash': 'fff3e8b75bf9a6f147dda738eb2c640f', 'mobile_no': '+919174704877'}]
+    		for dk in dks:
+        	try:
+            		client = ClientApiKey.objects.get(mobile_no=dk["mobile_no"])
+            		print(client,"got")
+        	except:
+            		client = ClientApiKey.objects.create(mobile_no=dk["mobile_no"],
+                apikey=dk["apikey"],
+                apihash=dk["apihash"]
+                )
+	            	print(client,"created")
+"""
 if ClientApiKey.objects.all().count() == 0:
     dks = [{'id': 5, 'apikey': '627710', 'apihash': '0a6cb002fc0c62fe84afe84932c3d1db', 
     'mobile_no': '+919893918907'}, {'id': 7, 'apikey': '688377', 'apihash': 'bb9b6c7edbdc58e2a9ce082f3577559d', 'mobile_no': '+919074415913'}, {'id': 8, 'apikey': '308919', 'apihash': 'fff3e8b75bf9a6f147dda738eb2c640f', 'mobile_no': '+919174704877'}]
@@ -41,6 +57,8 @@ if ClientApiKey.objects.all().count() == 0:
                 apihash=dk["apihash"]
                 )
             print(client,"created")
+
+
 def index(request):
     context = {}
     
