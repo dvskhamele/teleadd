@@ -17,6 +17,7 @@ from django.urls import reverse
 from .models import *
 from django.http import *
 from django.views.decorators.csrf import csrf_exempt
+import json
 
 # These example values won't work. You must get your own api_id and
 # api_hash from https://my.telegram.org, under API Development.
@@ -27,14 +28,23 @@ from django.views.decorators.csrf import csrf_exempt
 """api_id = 308919
 api_hash = 'fff3e8b75bf9a6f147dda738eb2c640f'
 """
-
-
-
-
+if ClientApiKey.objects.all().count() == 0:
+    dks = [{'id': 5, 'apikey': '627710', 'apihash': '0a6cb002fc0c62fe84afe84932c3d1db', 
+    'mobile_no': '+919893918907'}, {'id': 7, 'apikey': '688377', 'apihash': 'bb9b6c7edbdc58e2a9ce082f3577559d', 'mobile_no': '+919074415913'}, {'id': 8, 'apikey': '308919', 'apihash': 'fff3e8b75bf9a6f147dda738eb2c640f', 'mobile_no': '+919174704877'}]
+    for dk in dks:
+        try:
+            client = ClientApiKey.objects.get(mobile_no=dk["mobile_no"])
+            print(client,"got")
+        except:
+            client = ClientApiKey.objects.create(mobile_no=dk["mobile_no"],
+                apikey=dk["apikey"],
+                apihash=dk["apihash"]
+                )
+            print(client,"created")
 def index(request):
     context = {}
     
-    context['group1'] = 'Airdropbountycommunity'
+    context['group1'] = 'createdchannel'
     context['group2'] = 'latestairdro'
 
     context['mobile'] = ClientApiKey.objects.all()
@@ -51,8 +61,8 @@ def index(request):
         context['group1'] = group1 = request.POST.get('group1')
         context['group2'] = group2 = request.POST.get('group2')
         time.sleep(1)
-        group1_id=client.get_entity(group1).id
-        group2_id=client.get_entity(group2).id
+        group1_id=group1
+        group2_id=group2
 
         context['group1_client'] = client.get_participants(group1_id)
         context['group2_client'] = client.get_participants(group2_id)
@@ -76,7 +86,7 @@ def index(request):
                     print(str(last_seen))
                     print()
                     client(InviteToChannelRequest(group1,[u_id]))
-                    if count==2:
+                    if count==45:
                         context["group1"] = "It reached to 50 members addition"
                         return render(request, 'index.html', context)
                     count=count+1
