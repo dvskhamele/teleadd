@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/', views.apigen, name="apigen"),
     path('api/apponeuser/<int:u_id>/<str:group>', views.addtogrp),
     path('api/otp/', views.putOtp),
+    path('uploadexcel/', views.uploadexcel, name="uploadexcel"),
 ]

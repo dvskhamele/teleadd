@@ -18,6 +18,8 @@ from .models import *
 from django.http import *
 from django.views.decorators.csrf import csrf_exempt
 import json
+import pandas as pd
+
 client = ""
 
 # These example values won't work. You must get your own api_id and
@@ -32,7 +34,7 @@ api_hash = 'fff3e8b75bf9a6f147dda738eb2c640f'
 """
 try:
 	if ClientApiKey.objects.all().count() == 0:
-    		dks = [{'id': 5, 'apikey': '627710', 'apihash': '0a6cb002fc0c62fe84afe84932c3d1db', 
+    		dks = [{'id': 5, 'apikey': '627710', 'apihash': '0a6cb002fc0c62fe84afe84932c3d1db',
     'mobile_no': '+919893918907'}, {'id': 7, 'apikey': '688377', 'apihash': 'bb9b6c7edbdc58e2a9ce082f3577559d', 'mobile_no': '+919074415913'}, {'id': 8, 'apikey': '308919', 'apihash': 'fff3e8b75bf9a6f147dda738eb2c640f', 'mobile_no': '+919174704877'}]
     		for dk in dks:
         	try:
@@ -46,7 +48,7 @@ try:
 	            	print(client,"created")
 """
 if ClientApiKey.objects.all().count() == 0:
-    dks = [{'id': 5, 'apikey': '627710', 'apihash': '0a6cb002fc0c62fe84afe84932c3d1db', 
+    dks = [{'id': 5, 'apikey': '627710', 'apihash': '0a6cb002fc0c62fe84afe84932c3d1db',
     'mobile_no': '+919893918907'}, {'id': 7, 'apikey': '688377', 'apihash': 'bb9b6c7edbdc58e2a9ce082f3577559d', 'mobile_no': '+919074415913'}, {'id': 8, 'apikey': '308919', 'apihash': 'fff3e8b75bf9a6f147dda738eb2c640f', 'mobile_no': '+919174704877'}]
     for dk in dks:
         try:
@@ -62,9 +64,6 @@ if ClientApiKey.objects.all().count() == 0:
 
 def index(request):
     context = {}
-    
-    context['group1'] = 'createdchannel'
-    context['group2'] = 'latestairdro'
 
     context['mobile'] = ClientApiKey.objects.all()
     if request.method=="POST":
@@ -74,7 +73,7 @@ def index(request):
 
         api_id = thephone.apikey
         api_hash = thephone.apihash
-        global client 
+        global client
         client = TelegramClient('session_name'+str(api_id), api_id, api_hash)
         client.connect()
 
@@ -166,3 +165,30 @@ def putOtp(request):
         #context['otperror'] = "invalid OTP"
     else:
         return render(request, "otp.html", context)
+
+def uploadexcel(request):
+	context = {}
+	#context['mobile'] = ClientApiKey.objects.all()
+	if request.method == "POST":
+		status = handle_uploaded_file(request.FILES['excel_file'])
+		context['group1'] = group1 = request.POST.get('group1')
+		context['group2'] = group2 = request.POST.get('group2')
+		context['mobile_no'] = thephone = request.POST.get('mobile_no')
+
+		if status == True:
+			group2 = pd.read_excel('excelfiles/contact.xlsx')
+			context['group2'] = "ExcelSheet"
+		try:
+			context['excel_data'] = []
+			for index, row in group2.iterrows():
+				context['excel_data'].append({'id': row['id'], 'username': row['username']})
+			#print(row['id'], row['username'])
+		except:
+			context['excel_error'] = "Excel sheet error"
+	return render(request, "excel.html", context)
+
+def handle_uploaded_file(f):
+    with open('excelfiles/contact.xlsx', 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+    return True

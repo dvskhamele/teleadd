@@ -26,14 +26,14 @@
 
       <div class="collapse navbar-collapse" id="navbarColor02">
         <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'index' %}">Home</a>
+          </li>
           <li class="nav-item active">
-            <a class="nav-link" href="{% url 'index' %}">Home <span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="{% url 'uploadexcel' %}">Upload ExcelSheet <span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'uploadexcel' %}">Upload ExcelSheet</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" target="_blank" href="{% url 'apigen' %}">Generate Api Key</a>
+            <a class="nav-link" href="{% url 'apigen' %}">Generate Api Key</a>
           </li>
         </ul>
 
@@ -46,7 +46,7 @@
           <hr/>
           <div class="card bg-light">
             <div class="card-body">
-              <form action="" method="post">
+              <form action="" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
               <div class="row">
                 <div class="col-lg-3 col-md-3">
@@ -58,7 +58,8 @@
                 <div class="col-lg-3 col-md-3">
                   <div class="form-group">
                     <label for="">Other Group</label>
-                    <input type="text" class="form-control" required placeholder="Enter group name you want to add" id="group2" name="group2" value="{{group2}}">
+                    <input type="file" id="group2" style="padding:3px;" required class="form-control" name="excel_file" />
+                    <span id="file_info" class="text-danger"></span>
                   </div>
                 </div>
                 <div class="col-lg-3 col-md-3">
@@ -84,7 +85,7 @@
             <div class="col-lg-6">
               <div class="card border-secondary">
                 <div class="card-header bg-light">
-                  <strong id="grp1" grpname="{{group1}}">Group: {{group1}} <span></span></strong>
+                  <strong id="grp1">Group: {{group1}} <span></span></strong>
                 </div>
                 <div class="card-body" style="height:400px;overflow-x:auto">
                   <table id="grp1table" class="table">
@@ -122,7 +123,7 @@
             <div class="col-lg-6">
               <div class="card border-secondary">
                 <div class="card-header bg-light">
-                  <strong id="grp2"  grpname="{{group2}}">Group: {{group2}} <span></span></strong>
+                  <strong id="grp2">Group: {{group2}} <span></span></strong>
                 </div>
                 <div class="card-body" style="height:400px;overflow-x:auto">
                   <table id="grp2table" class="table addedUser">
@@ -130,21 +131,24 @@
                       <th></th>
                       <th>SNo</th>
                       <th>Name</th>
-                      <th>Last Active</th>
                       <th></th>
                     </tr>
-                    {% for u in group2_client %}
+                    {% if excel_error %}
+                    <tr>
+                      <td colspan="4" class="text-center">
+                        <strong class="text-danger">{{excel_error}}</strong>
+                      </td>
+                    </tr>
+                    {% endif %}
+                    {% for u in excel_data %}
                       <tr id="{{forloop.counter }}" class="users2">
                         <td>
-                          <input type="checkbox" disabled="true" name="ouid id="ouid" value="{{u.id}}"/>
+                          <input type="checkbox" disabled="true" name="ouid" id="ouid" value="{{u.id}}"/>
                         </td>
                         <td>{{forloop.counter }}.</td>
-                        <td style="">{{u.first_name}}</td>
+                        <td style="">{{u.username}}</td>
                         <td>
-                          {{u.status|current_status}}
-                        </td>
-                        <td>
-                          <button user="{{u.id}}" username="{{u.first_name}}" status="{{u.status|current_status}}" class="btn btn-info adduser">Add</button>
+                          <button user="{{u.id}}" username="{{u.username}}" status="" class="btn btn-info adduser">Add</button>
                         </td>
                       </tr>
                     {% endfor %}
@@ -172,9 +176,9 @@
               </div>
             </div>
           </div>
-        </div>
-      </div>
     </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="/static/main.js" charset="utf-8"></script>
   </body>
