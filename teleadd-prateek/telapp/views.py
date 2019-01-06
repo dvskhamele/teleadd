@@ -67,22 +67,16 @@ def index(request):
 
     context['mobile'] = ClientApiKey.objects.all()
     if request.method=="POST":
-        context['mobile_no'] = thephone = request.POST.get('mobile_no')
-        print(thephone)
-        thephone = ClientApiKey.objects.get( mobile_no = thephone )
-
-        api_id = thephone.apikey
-        api_hash = thephone.apihash
-        global client
-        client = TelegramClient('session_name'+str(api_id), api_id, api_hash)
-        client.connect()
-
-        context['group1'] = group1 = request.POST.get('group1')
+		context['group1'] = group1 = request.POST.get('group1')
         context['group2'] = group2 = request.POST.get('group2')
         time.sleep(1)
         group1_id=group1
         group2_id=group2
 
+        context['mobile_no'] = thephone = request.POST.get('mobile_no')
+        print(thephone)
+		getClient(thephone)
+		client.connect()
         context['group1_client'] = client.get_participants(group1_id)
         context['group2_client'] = client.get_participants(group2_id)
 
@@ -112,6 +106,14 @@ def index(request):
         print(context['group2_client'])
         client.disconnect()
     return render(request, 'index.html', context)
+
+def getClient(thephone):
+	thephone = ClientApiKey.objects.get( mobile_no = thephone )
+	api_id = thephone.apikey
+	api_hash = thephone.apihash
+	global client
+	client = TelegramClient('session_name'+str(api_id), api_id, api_hash)
+	return client
 
 @csrf_exempt
 def addtogrp(request, u_id=None, group=None):
@@ -172,7 +174,6 @@ def uploadexcel(request):
 	if request.method == "POST":
 		status = handle_uploaded_file(request.FILES['excel_file'])
 		context['group1'] = group1 = request.POST.get('group1')
-		context['group2'] = group2 = request.POST.get('group2')
 		context['mobile_no'] = thephone = request.POST.get('mobile_no')
 
 		if status == True:
@@ -182,7 +183,9 @@ def uploadexcel(request):
 			context['excel_data'] = []
 			for index, row in group2.iterrows():
 				context['excel_data'].append({'id': row['id'], 'username': row['username']})
-			#print(row['id'], row['username'])
+			#print(row['id'], row['username
+			client.connect()
+			context['group1_client'] = client.get_participants(group1)
 		except:
 			context['excel_error'] = "Excel sheet error"
 	return render(request, "excel.html", context)
