@@ -2,13 +2,18 @@ $(document).ready(function(){
   var grp1_len = $('.users1:last').attr('id');
   var grp1_c_page = 1;
   var grp1_t_page = 1;
+  var grp1_name = $('#grp1').attr('grpname');
 
   var grp2_len = $('.users2:last').attr('id');
   var grp2_c_page = 1;
   var grp2_t_page = 1;
+  var grp2_name = $('#grp2').attr('grpname');
 
   var c = 0;
   var addedUser = [];
+  
+  $('#grp1 span').text('(Total Members: '+grp1_len+')');
+  $('#grp2 span').text('(Total Members: '+grp2_len+')');
 
   $("#grp1table tr").hide();
   $("#grp1table tr:lt(20)").show();
@@ -92,8 +97,9 @@ $(document).ready(function(){
 */
   $(document).on('click', '.adduser', function(){
     var user = $(this).attr('user');
-    $.get('http://localhost:8000/api/apponeuser/'+user, function(data){
-      if(data=='Success'){
+    $.get('http://ec2-52-66-248-85.ap-south-1.compute.amazonaws.com:9003/api/apponeuser/'+user+'/'+grp1_name, function(data){
+      console.log(data);
+      if(data>0){
         var username = $(this).attr('username');
         var status = $(this).attr('status');
         $('.addedUser').append('<tr><td>'+(++grp2_len)+'</td><td>'+username+'</td><td>'+status+'</td></tr>');

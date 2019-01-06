@@ -21,6 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name="index"),
     path('api/', views.apigen, name="apigen"),
-    path('api/apponeuser/<int:u_id>', views.addtogrp),
+    path('api/apponeuser/<int:u_id>/<str:group>', views.addtogrp),
     path('api/otp/', views.putOtp),
 ]

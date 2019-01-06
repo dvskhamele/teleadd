@@ -18,7 +18,6 @@ from .models import *
 from django.http import *
 from django.views.decorators.csrf import csrf_exempt
 import json
-client = ""
 
 # These example values won't work. You must get your own api_id and
 # api_hash from https://my.telegram.org, under API Development.
@@ -29,24 +28,9 @@ client = ""
 """api_id = 308919
 api_hash = 'fff3e8b75bf9a6f147dda738eb2c640f'
 """
-"""
 try:
 	if ClientApiKey.objects.all().count() == 0:
-    		dks = [{'id': 5, 'apikey': '627710', 'apihash': '0a6cb002fc0c62fe84afe84932c3d1db', 
-    'mobile_no': '+919893918907'}, {'id': 7, 'apikey': '688377', 'apihash': 'bb9b6c7edbdc58e2a9ce082f3577559d', 'mobile_no': '+919074415913'}, {'id': 8, 'apikey': '308919', 'apihash': 'fff3e8b75bf9a6f147dda738eb2c640f', 'mobile_no': '+919174704877'}]
-    		for dk in dks:
-        	try:
-            		client = ClientApiKey.objects.get(mobile_no=dk["mobile_no"])
-            		print(client,"got")
-        	except:
-            		client = ClientApiKey.objects.create(mobile_no=dk["mobile_no"],
-                apikey=dk["apikey"],
-                apihash=dk["apihash"]
-                )
-	            	print(client,"created")
-"""
-if ClientApiKey.objects.all().count() == 0:
-    dks = [{'id': 5, 'apikey': '627710', 'apihash': '0a6cb002fc0c62fe84afe84932c3d1db', 
+    dks 	= [{'id': 5, 'apikey': '627710', 'apihash': '0a6cb002fc0c62fe84afe84932c3d1db', 
     'mobile_no': '+919893918907'}, {'id': 7, 'apikey': '688377', 'apihash': 'bb9b6c7edbdc58e2a9ce082f3577559d', 'mobile_no': '+919074415913'}, {'id': 8, 'apikey': '308919', 'apihash': 'fff3e8b75bf9a6f147dda738eb2c640f', 'mobile_no': '+919174704877'}]
     for dk in dks:
         try:
@@ -58,8 +42,6 @@ if ClientApiKey.objects.all().count() == 0:
                 apihash=dk["apihash"]
                 )
             print(client,"created")
-
-
 def index(request):
     context = {}
     
@@ -74,7 +56,6 @@ def index(request):
 
         api_id = thephone.apikey
         api_hash = thephone.apihash
-        global client 
         client = TelegramClient('session_name'+str(api_id), api_id, api_hash)
         client.connect()
 
@@ -111,17 +92,15 @@ def index(request):
                         return render(request, 'index.html', context)
                     count=count+1
         print(context['group2_client'])
-        client.disconnect()
     return render(request, 'index.html', context)
 
 @csrf_exempt
-def addtogrp(request, u_id=None, group=None):
-    #try:
-    client.connect()
-    client(InviteToChannelRequest(group,[u_id]))
-    return HttpResponse(group)
-    #except:
-     #   return HttpResponse(0)
+def addtogrp(request, u_id=None):
+    try:
+        client(InviteToChannelRequest(group1,[u_id]))
+        return HttpResponse('Success')
+    except:
+        return HttpResponse('Failed')
 
 def apigen(request):
     if request.method == "POST":
