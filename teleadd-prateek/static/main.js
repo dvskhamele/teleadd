@@ -99,7 +99,7 @@ $(document).ready(function(){
     var user = $(this).attr('user');
     $.get('http://127.0.0.1:8000/api/apponeuser/'+user+'/'+grp1_name, function(data){
       console.log(data);
-      if(data>0){
+      if(data.length>0){
         var username = $(this).attr('username');
         var status = $(this).attr('status');
         $('.addedUser').append('<tr><td>'+(++grp2_len)+'</td><td>'+username+'</td><td>'+status+'</td></tr>');

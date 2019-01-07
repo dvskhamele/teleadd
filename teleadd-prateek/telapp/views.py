@@ -115,13 +115,14 @@ def getClient(thephone):
 
 @csrf_exempt
 def addtogrp(request, u_id=None, group=None, mobile_no=None):
-    client=getClient(mobile_no)
-	client.connect()
-    client(InviteToChannelRequest(group,[u_id]))
-	client.disconnect()
-    return HttpResponse(group)
-    #except:
-     #   return HttpResponse(0)
+	try:
+	    client=getClient(mobile_no)
+		client.connect()
+	    client(InviteToChannelRequest(group,[u_id]))
+		client.disconnect()
+	    return HttpResponse('success')
+    except:
+        return HttpResponse(0)
 
 def apigen(request):
     if request.method == "POST":
