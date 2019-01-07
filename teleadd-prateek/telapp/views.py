@@ -20,7 +20,6 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import pandas as pd
 
-client = ""
 
 # These example values won't work. You must get your own api_id and
 # api_hash from https://my.telegram.org, under API Development.
@@ -75,7 +74,7 @@ def index(request):
 
         context['mobile_no'] = thephone = request.POST.get('mobile_no')
         print(thephone)
-        getClient(thephone)
+        client = getClient(thephone)
         client.connect()
         context['group1_client'] = client.get_participants(group1_id)
         context['group2_client'] = client.get_participants(group2_id)
@@ -111,17 +110,15 @@ def getClient(thephone):
 	thephone = ClientApiKey.objects.get( mobile_no = thephone )
 	api_id = thephone.apikey
 	api_hash = thephone.apihash
-	global client
 	client = TelegramClient('session_name'+str(api_id), api_id, api_hash)
 	return client
 
 @csrf_exempt
 def addtogrp(request, u_id=None, group=None, mobile_no=None):
-    try:
-        client.connect()
-    except:
-        client=getClient(mobile_no)
+    client=getClient(mobile_no)
+	client.connect()
     client(InviteToChannelRequest(group,[u_id]))
+	client.disconnect()
     return HttpResponse(group)
     #except:
      #   return HttpResponse(0)
@@ -188,15 +185,14 @@ def uploadexcel(request):
             for index, row in group2.iterrows():
                 context['excel_data'].append({'id': row['id'], 'username': row['username']})
             #print(row['id'], row['username
+
+            client = getClient(thephone)
             try:
                 client.connect()
-            except:
-                client = getClient(thephone)
-                try:
-                    client.connect()
-                except Exception as e:
-                    print(e)
+            except Exception as e:
+                print(e)
             context['group1_client'] = client.get_participants(group1)
+			client.disconnect()
         except ClientApiKey.DoesNotExist:
             context['excel_error'] = "Excel sheet error"
     return render(request, "excel.html", context)
