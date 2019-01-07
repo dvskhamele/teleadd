@@ -188,14 +188,14 @@ def uploadexcel(request):
             #print(row['id'], row['username
 
             client = getClient(thephone)
-            try:
-                client.connect()
-            except Exception as e:
-                print(e)
-            context['group1_client'] = client.get_participants(group1)
-			client.disconnect()
-        except ClientApiKey.DoesNotExist:
-            context['excel_error'] = "Excel sheet error"
+			try:
+				client.connect()
+				context['group1_client'] = client.get_participants(group1)
+				client.disconnect()
+			except Exception as e:
+				print(e)
+		except ClientApiKey.DoesNotExist:
+			context['excel_error'] = "Excel sheet error"
     return render(request, "excel.html", context)
 
 def handle_uploaded_file(f):
