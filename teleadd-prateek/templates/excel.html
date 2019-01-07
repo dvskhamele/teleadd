@@ -148,7 +148,7 @@
                         <td>{{forloop.counter }}.</td>
                         <td style="">{{u.username}}</td>
                         <td>
-                          <button user="{{u.id}}" username="{{u.username}}" status="" class="btn btn-info adduser">Add</button>
+                          <button user="{{u.id}}" username="{{u.username}}" value="{{ u.username }}" status="" class="btn btn-info adduser">Add</button>
                         </td>
                       </tr>
                     {% endfor %}

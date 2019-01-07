@@ -67,7 +67,7 @@ def index(request):
 
     context['mobile'] = ClientApiKey.objects.all()
     if request.method=="POST":
-		context['group1'] = group1 = request.POST.get('group1')
+        context['group1'] = group1 = request.POST.get('group1')
         context['group2'] = group2 = request.POST.get('group2')
         time.sleep(1)
         group1_id=group1
@@ -75,8 +75,8 @@ def index(request):
 
         context['mobile_no'] = thephone = request.POST.get('mobile_no')
         print(thephone)
-		getClient(thephone)
-		client.connect()
+        getClient(thephone)
+        client.connect()
         context['group1_client'] = client.get_participants(group1_id)
         context['group2_client'] = client.get_participants(group2_id)
 
@@ -116,9 +116,11 @@ def getClient(thephone):
 	return client
 
 @csrf_exempt
-def addtogrp(request, u_id=None, group=None):
-    #try:
-    client.connect()
+def addtogrp(request, u_id=None, group=None, mobile_no=None):
+    try:
+        client.connect()
+    except:
+        client=getClient(mobile_no)
     client(InviteToChannelRequest(group,[u_id]))
     return HttpResponse(group)
     #except:
@@ -169,26 +171,35 @@ def putOtp(request):
         return render(request, "otp.html", context)
 
 def uploadexcel(request):
-	context = {}
-	#context['mobile'] = ClientApiKey.objects.all()
-	if request.method == "POST":
-		status = handle_uploaded_file(request.FILES['excel_file'])
-		context['group1'] = group1 = request.POST.get('group1')
-		context['mobile_no'] = thephone = request.POST.get('mobile_no')
+    context = {}
+    context['mobile'] = ClientApiKey.objects.all()
+    print(context['mobile'])
+    #context['mobile'] = ClientApiKey.objects.all()
+    if request.method == "POST":
+        status = handle_uploaded_file(request.FILES['excel_file'])
+        context['group1'] = group1 = request.POST.get('group1')
+        context['mobile_no'] = thephone = request.POST.get('mobile_no')
 
-		if status == True:
-			group2 = pd.read_excel('excelfiles/contact.xlsx')
-			context['group2'] = "ExcelSheet"
-		try:
-			context['excel_data'] = []
-			for index, row in group2.iterrows():
-				context['excel_data'].append({'id': row['id'], 'username': row['username']})
-			#print(row['id'], row['username
-			client.connect()
-			context['group1_client'] = client.get_participants(group1)
-		except:
-			context['excel_error'] = "Excel sheet error"
-	return render(request, "excel.html", context)
+        if status == True:
+            group2 = pd.read_excel('excelfiles/contact.xlsx')
+            context['group2'] = "ExcelSheet"
+        try:
+            context['excel_data'] = []
+            for index, row in group2.iterrows():
+                context['excel_data'].append({'id': row['id'], 'username': row['username']})
+            #print(row['id'], row['username
+            try:
+                client.connect()
+            except:
+                client = getClient(thephone)
+                try:
+                    client.connect()
+                except Exception as e:
+                    print(e)
+            context['group1_client'] = client.get_participants(group1)
+        except ClientApiKey.DoesNotExist:
+            context['excel_error'] = "Excel sheet error"
+    return render(request, "excel.html", context)
 
 def handle_uploaded_file(f):
     with open('excelfiles/contact.xlsx', 'wb+') as destination:

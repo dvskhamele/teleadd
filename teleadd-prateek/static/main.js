@@ -97,7 +97,7 @@ $(document).ready(function(){
 */
   $(document).on('click', '.adduser', function(){
     var user = $(this).attr('user');
-    $.get('http://ec2-52-66-248-85.ap-south-1.compute.amazonaws.com:9003/api/apponeuser/'+user+'/'+grp1_name, function(data){
+    $.get('http://127.0.0.1:8000/api/apponeuser/'+user+'/'+grp1_name, function(data){
       console.log(data);
       if(data>0){
         var username = $(this).attr('username');
