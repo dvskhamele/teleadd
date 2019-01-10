@@ -110,7 +110,14 @@ def getClient(thephone):
 	thephone = ClientApiKey.objects.get( mobile_no = thephone )
 	api_id = thephone.apikey
 	api_hash = thephone.apihash
-	client = TelegramClient('session_name'+str(api_id), api_id, api_hash)
+	try:
+		client = TelegramClient('session_name'+str(api_id), api_id, api_hash)
+	except:
+		if not client.is_user_authorized():
+			phone_code_hash = client.send_code_request(thephone).phone_code_hash
+			request.session['phone_code_hash'] = phone_code_hash
+        	me = client.sign_in(thephone, otp, phone_code_hash=phone_code_hash)
+			return render(request, "otp.html", {'mob':thephone, 'title': 'Enter OTP to Sign in'})
 	return client
 
 @csrf_exempt
@@ -146,7 +153,7 @@ def apigen(request):
             except:
                 ca = ClientApiKey.objects.create(apikey=apikey, apihash=apihash, mobile_no=mob)
             ca.save()
-            return render(request, "otp.html", {'mob':mob})
+            return render(request, "otp.html", {'mob':mob, 'title': 'OTP'})
         else:
             return render(request, "requestform.html", {'moberror':'invalid mobile number'})
     else:
