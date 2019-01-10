@@ -19,7 +19,7 @@ from django.http import *
 from django.views.decorators.csrf import csrf_exempt
 import json
 import pandas as pd
-
+import os
 
 # These example values won't work. You must get your own api_id and
 # api_hash from https://my.telegram.org, under API Development.
@@ -168,6 +168,7 @@ def putOtp(request):
         api_id = thephone.apikey
         api_hash = thephone.apihash
         phone_code_hash = request.session['phone_code_hash']
+		os.remove('session_name'+str(api_id))
         client = TelegramClient('session_name'+str(api_id), api_id, api_hash)
         client.connect()
         me = client.sign_in(mob, otp, phone_code_hash=phone_code_hash)
