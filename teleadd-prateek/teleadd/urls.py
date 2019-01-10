@@ -21,7 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name="index"),
     path('api/', views.apigen, name="apigen"),
-    path('api/apponeuser/<int:u_id>/<str:group>', views.addtogrp),
+    path('api/apponeuser/<str:u_id>/<str:group>/<str:mobile_no>', views.addtogrp),
     path('api/otp/', views.putOtp),
     path('uploadexcel/', views.uploadexcel, name="uploadexcel"),
 ]

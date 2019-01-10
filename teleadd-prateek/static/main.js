@@ -2,12 +2,14 @@ $(document).ready(function(){
   var grp1_len = $('.users1:last').attr('id');
   var grp1_c_page = 1;
   var grp1_t_page = 1;
-  var grp1_name = $('#grp1').attr('grpname');
+  var grp1_name = $('#group1').val();
 
   var grp2_len = $('.users2:last').attr('id');
   var grp2_c_page = 1;
   var grp2_t_page = 1;
   var grp2_name = $('#grp2').attr('grpname');
+
+  var mobile_no = $('#mobile_no1').val();
 
   var c = 0;
   var addedUser = [];
@@ -96,8 +98,8 @@ $(document).ready(function(){
   });
 */
   $(document).on('click', '.adduser', function(){
-    var user = $(this).attr('user');
-    $.get('http://127.0.0.1:8000/api/apponeuser/'+user+'/'+grp1_name, function(data){
+    var user = $(this).val();
+    $.get('http://127.0.0.1:8000/api/apponeuser/'+user+'/'+grp1_name+'/'+mobile_no, function(data){
       console.log(data);
       if(data.length>0){
         var username = $(this).attr('username');

@@ -115,14 +115,18 @@ def getClient(thephone):
 
 @csrf_exempt
 def addtogrp(request, u_id=None, group=None, mobile_no=None):
-	try:
-	    client=getClient(mobile_no)
-		client.connect()
-	    client(InviteToChannelRequest(group,[u_id]))
-		client.disconnect()
-	    return HttpResponse('success')
-    except:
-        return HttpResponse(0)
+
+        client=getClient(mobile_no)
+        try:
+            client.connect()
+        except:
+            pass
+        client(InviteToChannelRequest(group,[u_id]))
+        try:
+            client.disconnect()
+        except:
+            pass
+        return HttpResponse('success')
 
 def apigen(request):
     if request.method == "POST":
@@ -188,14 +192,14 @@ def uploadexcel(request):
             #print(row['id'], row['username
 
             client = getClient(thephone)
-			try:
-				client.connect()
-				context['group1_client'] = client.get_participants(group1)
-				client.disconnect()
-			except Exception as e:
-				print(e)
-		except ClientApiKey.DoesNotExist:
-			context['excel_error'] = "Excel sheet error"
+            try:
+                client.connect()
+                context['group1_client'] = client.get_participants(group1)
+                client.disconnect()
+            except Exception as e:
+                print(e)
+        except ClientApiKey.DoesNotExist:
+            context['excel_error'] = "Excel sheet error"
     return render(request, "excel.html", context)
 
 def handle_uploaded_file(f):
