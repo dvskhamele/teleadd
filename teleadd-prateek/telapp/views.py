@@ -177,34 +177,32 @@ def putOtp(request):
 		return render(request, "otp.html", context)
 
 def uploadexcel(request):
-    context = {}
-    context['mobile'] = ClientApiKey.objects.all()
-    print(context['mobile'])
-    #context['mobile'] = ClientApiKey.objects.all()
-    if request.method == "POST":
-        status = handle_uploaded_file(request.FILES['excel_file'])
-        context['group1'] = group1 = request.POST.get('group1')
-        context['mobile_no'] = thephone = request.POST.get('mobile_no')
+	context = {}
+	context['mobile'] = ClientApiKey.objects.all()
+	print(context['mobile'])
+	#context['mobile'] = ClientApiKey.objects.all()
+	if request.method == "POST":
+		status = handle_uploaded_file(request.FILES['excel_file'])
+		context['group1'] = group1 = request.POST.get('group1')
+		context['mobile_no'] = thephone = request.POST.get('mobile_no')
 
-        if status == True:
-            group2 = pd.read_excel('excelfiles/contact.xlsx')
-            context['group2'] = "ExcelSheet"
-        try:
-            context['excel_data'] = []
-            for index, row in group2.iterrows():
-                context['excel_data'].append({'id': row['id'], 'username': row['username']})
-            #print(row['id'], row['username
-
-            client = getClient(thephone)
-            try:
-
-                context['group1_client'] = client.get_participants(group1)
-                client.disconnect()
-            except Exception as e:
-                print(e)
-        except ClientApiKey.DoesNotExist:
-            context['excel_error'] = "Excel sheet error"
-    return render(request, "excel.html", context)
+		if status == True:
+			group2 = pd.read_excel('excelfiles/contact.xlsx')
+			context['group2'] = "ExcelSheet"
+			try:
+				context['excel_data'] = []
+				for index, row in group2.iterrows():
+					context['excel_data'].append({'id': row['id'], 'username': row['username']})
+					#print(row['id'], row['username
+				try:
+					client = getClient(thephone)
+					context['group1_client'] = client.get_participants(group1_id)
+					context['group2_client'] = client.get_participants(group2_id)
+				except:
+					return render(request, "otp.html", {'mob':thephone, 'title': 'Enter OTP to Sign in'})
+			except:
+				context['excel_error'] = "Excel sheet error"
+	return render(request, "excel.html", context)
 
 def handle_uploaded_file(f):
     with open('excelfiles/contact.xlsx', 'wb+') as destination:
