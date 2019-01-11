@@ -62,72 +62,62 @@ if ClientApiKey.objects.all().count() == 0:
 
 
 def index(request):
-    context = {}
+	context = {}
 
-    context['mobile'] = ClientApiKey.objects.all()
-    if request.method=="POST":
-        context['group1'] = group1 = request.POST.get('group1')
-        context['group2'] = group2 = request.POST.get('group2')
-        time.sleep(1)
-        group1_id=group1
-        group2_id=group2
+	context['mobile'] = ClientApiKey.objects.all()
+	if request.method=="POST":
+		context['group1'] = group1 = request.POST.get('group1')
+		context['group2'] = group2 = request.POST.get('group2')
+		time.sleep(1)
+		group1_id=group1
+		group2_id=group2
 
-        context['mobile_no'] = thephone = request.POST.get('mobile_no')
-        print(thephone)
-        client = getClient(thephone)
-        client.connect()
-        context['group1_client'] = client.get_participants(group1_id)
-        context['group2_client'] = client.get_participants(group2_id)
+		context['mobile_no'] = thephone = request.POST.get('mobile_no')
+		print(thephone)
+		try:
+			client = getClient(thephone)
+			context['group1_client'] = client.get_participants(group1_id)
+			context['group2_client'] = client.get_participants(group2_id)
+		except:
+			return render(request, "otp.html", {'mob':thephone, 'title': 'Enter OTP to Sign in'})
 
-        if "all" in request.POST:
-            context = {}
-            channels = {d.entity.username: d.entity
-                        for d in client.get_dialogs()
-                        if d.is_channel}
+		if "all" in request.POST:
+			context = {}
+			channels = {d.entity.username: d.entity
+			for d in client.get_dialogs()
+				if d.is_channel}
+			participants = client.get_participants(group2)
+			count=1
+			if str(1) == "1":
+				for u in participants:
+					print(count)
+					print(u.first_name)
+					u_id=u.id
+					last_seen = client.get_entity(u_id)
+					print(str(last_seen))
+					print()
+					client(InviteToChannelRequest(group1,[u_id]))
+					if count==45:
+						context["group1"] = "It reached to 50 members addition"
+						return render(request, 'index.html', context)
+					count=count+1
+		print(context['group2_client'])
+		client.disconnect()
+	return render(request, 'index.html', context)
 
-            #channel='entrepreneurialjourney'
-            #channel2= 'joinexample3'
-            participants = client.get_participants(group2)
-            count=1
-            if str(1) == "1":
-                for u in participants:
-                    print(count)
-                    print(u.first_name)
-                    u_id=u.id
-                    last_seen = client.get_entity(u_id)
-                    print(str(last_seen))
-                    print()
-                    client(InviteToChannelRequest(group1,[u_id]))
-                    if count==45:
-                        context["group1"] = "It reached to 50 members addition"
-                        return render(request, 'index.html', context)
-                    count=count+1
-        print(context['group2_client'])
-        client.disconnect()
-    return render(request, 'index.html', context)
-
-def getClient(thephone):
+def getClient(request, thephone):
 	thephone = ClientApiKey.objects.get( mobile_no = thephone )
 	api_id = thephone.apikey
 	api_hash = thephone.apihash
-	try:
-		client = TelegramClient('session_name'+str(api_id), api_id, api_hash)
-	except:
-		if not client.is_user_authorized():
-			phone_code_hash = client.send_code_request(thephone).phone_code_hash
-			request.session['phone_code_hash'] = phone_code_hash
-        	me = client.sign_in(thephone, otp, phone_code_hash=phone_code_hash)
-			return render(request, "otp.html", {'mob':thephone, 'title': 'Enter OTP to Sign in'})
+
+	client = TelegramClient('session_name'+str(api_id), api_id, api_hash)
+	client.connect()
 	return client
 
 @csrf_exempt
 def addtogrp(request, u_id=None, group=None, mobile_no=None):
 
         client=getClient(mobile_no)
-        try:
-            client.connect()
-        except:
-            pass
         client(InviteToChannelRequest(group,[u_id]))
         try:
             client.disconnect()
@@ -144,7 +134,7 @@ def apigen(request):
         if len(mob)==10:
             mob = "+91"+mob
             client = TelegramClient('session_name'+str(apikey), apikey, apihash)
-            client.connect()
+
             if not client.is_user_authorized():
                 phone_code_hash = client.send_code_request(mob).phone_code_hash
                 request.session['phone_code_hash'] = phone_code_hash
@@ -160,25 +150,31 @@ def apigen(request):
         return render(request, "requestform.html")
 
 def putOtp(request):
-    context = {}
-    if request.method == "POST":
-        mob = request.POST.get('mob')
-        otp = request.POST.get('otp')
-        thephone = ClientApiKey.objects.get( mobile_no = mob )
-        api_id = thephone.apikey
-        api_hash = thephone.apihash
-        phone_code_hash = request.session['phone_code_hash']
-		os.remove('session_name'+str(api_id))
-        client = TelegramClient('session_name'+str(api_id), api_id, api_hash)
-        client.connect()
-        me = client.sign_in(mob, otp, phone_code_hash=phone_code_hash)
-        context['mobile'] = ClientApiKey.objects.all()
-        context['mob'] = mob
+	context = {}
+	if request.method == "POST":
+		mob = request.POST.get('mob')
+		otp = request.POST.get('otp')
+		thephone = ClientApiKey.objects.get( mobile_no = mob )
+		api_id = thephone.apikey
+		api_hash = thephone.apihash
+		try:
+			os.remove('session_name'+str(api_id))
+		except:
+			pass
+		client = TelegramClient('session_name'+str(api_id), api_id, api_hash)
+		client.connect()
+		phone_code_hash = client.send_code_request(mob).phone_code_hash
+		request.session['phone_code_hash'] = phone_code_hash
+		try:
+			client.sign_in(mob, otp, phone_code_hash=phone_code_hash)
+		except:
+			return render(request, "otp.html", {'mob':mob, 'title': 'OTP Again', 'otperror': 'invalid OTP'})
+		context['mobile'] = ClientApiKey.objects.all()
+		context['mob'] = mob
 
-        return HttpResponseRedirect(reverse('index'))
-        #context['otperror'] = "invalid OTP"
-    else:
-        return render(request, "otp.html", context)
+		return HttpResponseRedirect(reverse('index'))
+	else:
+		return render(request, "otp.html", context)
 
 def uploadexcel(request):
     context = {}
@@ -201,7 +197,7 @@ def uploadexcel(request):
 
             client = getClient(thephone)
             try:
-                client.connect()
+
                 context['group1_client'] = client.get_participants(group1)
                 client.disconnect()
             except Exception as e:
